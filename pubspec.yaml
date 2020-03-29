@@ -1,0 +1,25 @@
+name: pkmn_tb_checker
+description: A new Flutter project.
+
+version: 0.1.0
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  provider:
+    git:
+      url: git://github.com/rrousselGit/provider.git
+      ref: extensions
+  tuple: ^1.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
