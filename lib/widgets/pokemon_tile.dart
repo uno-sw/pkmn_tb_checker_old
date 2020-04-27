@@ -19,12 +19,12 @@ class PokemonTile extends StatelessWidget {
     final pokemons = partyNotifier.pokemons;
     final pokemon = pokemons[index];
     final partyScore = PartyScore(
-      typeCombinations: pokemons.map((pokemon) => pokemon.typeCombination).toList(),
+      pokemons.map((pokemon) => pokemon.typeCombination).toList(),
     );
 
     return ListTile(
       title: Text(pokemon.name),
-      subtitle: Text(pokemon.types.map(
+      subtitle: Text(pokemon.typeCombination.types.map(
           (type) => type.name).join(', ')),
       leading: CircleAvatar(
         child: Text(partyScore.individualScore(index).toString()),

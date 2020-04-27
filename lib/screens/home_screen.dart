@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
     final scaffoldKey = context.watch<GlobalKey<ScaffoldState>>();
     final partyNotifier = Provider.of<PartyNotifier>(context);
     final partyScore = PartyScore(
-      typeCombinations: partyNotifier.pokemons.map(
+      partyNotifier.pokemons.map(
           (pokemon) => pokemon.typeCombination).toList(),
     );
 

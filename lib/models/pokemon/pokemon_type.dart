@@ -1,6 +1,8 @@
 import 'dart:ui';
 
-import 'package:meta/meta.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'pokemon_type.freezed.dart';
 
 enum PokemonType {
   normal,
@@ -23,21 +25,15 @@ enum PokemonType {
   fairy,
 }
 
-@immutable
-class PokemonTypeData {
-  const PokemonTypeData({
-    this.name = '',
-    this.color = const Color(0x00000000),
-    this.weaknesses = const {},
-    this.strengths = const {},
-    this.immunities = const {},
-  });
-
-  final String name;
-  final Color color;
-  final Set<PokemonType> weaknesses;
-  final Set<PokemonType> strengths;
-  final Set<PokemonType> immunities;
+@freezed
+abstract class PokemonTypeData with _$PokemonTypeData {
+  const factory PokemonTypeData({
+    @Default('') String name,
+    @Default(Color(0x00000000)) Color color,
+    @Default({}) Set<PokemonType> weaknesses,
+    @Default({}) Set<PokemonType> strengths,
+    @Default({}) Set<PokemonType> immunities,
+  }) = _PokemonTypeData;
 }
 
 extension PokemonTypeDataProviding on PokemonType {

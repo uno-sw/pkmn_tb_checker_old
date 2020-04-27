@@ -1,27 +1,28 @@
-import 'package:meta/meta.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pkmn_tb_checker/models/pokemon/pokemon_type.dart';
 import 'package:pkmn_tb_checker/models/pokemon/pokemon_type_combination.dart';
 import 'package:tuple/tuple.dart';
 
-class PartyScore {
-  PartyScore({@required List<PokemonTypeCombination> typeCombinations})
-      : assert(typeCombinations != null),
-        _typeCombinations = typeCombinations,
-        total = _scoreOf(typeCombinations);
+part 'party_score.freezed.dart';
 
-  final List<PokemonTypeCombination> _typeCombinations;
-  final int total;
+@freezed
+abstract class PartyScore implements _$PartyScore {
+  PartyScore._();
+  factory PartyScore(List<PokemonTypeCombination> typeCombinations)
+      = _PartyScore;
+
+  int get total => _scoreOf(typeCombinations);
 
   int individualScore(int index) {
-    RangeError.checkValidIndex(index, _typeCombinations);
-    final others = List.of(_typeCombinations)..removeAt(index);
+    RangeError.checkValidIndex(index, typeCombinations);
+    final others = List.of(typeCombinations)..removeAt(index);
     return total - _scoreOf(others);
   }
 
   int scoreIncreaseByAdding(PokemonType type) {
-    final typeCombinations = List.of(_typeCombinations)
+    final tc = List.of(typeCombinations)
       ..add(PokemonTypeCombination({type}));
-    return _scoreOf(typeCombinations) - total;
+    return _scoreOf(tc) - total;
   }
 
   List<Tuple2<int, String>> additionalTypeScores() {

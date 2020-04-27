@@ -8,7 +8,7 @@ import 'package:tuple/tuple.dart';
 void main() {
   group('total party score', () {
     test('indicates 0 by evaluating empty list', () {
-      expect(PartyScore(typeCombinations: []).total, 0);
+      expect(PartyScore([]).total, 0);
     });
 
     test('indicates 50 by evaluating kanto starting pokemons', () {
@@ -17,7 +17,7 @@ void main() {
         PokemonTypeCombination({PokemonType.fire}),
         PokemonTypeCombination({PokemonType.water}),
       ];
-      expect(PartyScore(typeCombinations: typeCombinations).total, 50);
+      expect(PartyScore(typeCombinations).total, 50);
     });
 
     test('indicates 100 by evaluating perfect party', () {
@@ -29,12 +29,12 @@ void main() {
         PokemonTypeCombination({PokemonType.water, PokemonType.flying}),
         PokemonTypeCombination({PokemonType.electric, PokemonType.dark}),
       ];
-      expect(PartyScore(typeCombinations: typeCombinations).total, 100);
+      expect(PartyScore(typeCombinations).total, 100);
     });
   });
 
   test('evaluating each of kanto starter pokemons', () {
-    final partyScore = PartyScore(typeCombinations: [
+    final partyScore = PartyScore([
       PokemonTypeCombination({PokemonType.grass, PokemonType.poison}),
       PokemonTypeCombination({PokemonType.fire}),
       PokemonTypeCombination({PokemonType.water}),
@@ -46,7 +46,7 @@ void main() {
   });
 
   test('calculating additional type scores for kanto starter pokemons', () {
-    final partyScore = PartyScore(typeCombinations: [
+    final partyScore = PartyScore([
       PokemonTypeCombination({PokemonType.grass, PokemonType.poison}),
       PokemonTypeCombination({PokemonType.fire}),
       PokemonTypeCombination({PokemonType.water}),
