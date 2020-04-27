@@ -11,10 +11,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  provider:
-    git:
-      url: git://github.com/rrousselGit/provider.git
-      ref: extensions
+  provider: ^4.1.0-dev+3
   tuple: ^1.0.3
 
 dev_dependencies:
