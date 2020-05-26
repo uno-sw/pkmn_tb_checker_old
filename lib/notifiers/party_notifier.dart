@@ -1,73 +1,59 @@
-import 'package:flutter/material.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:state_notifier/state_notifier.dart';
 
-import '../models/pokemon/pokemon.dart';
-import '../models/pokemon/pokemon_type.dart';
-import '../models/pokemon/pokemon_type_combination.dart';
+class PartyNotifier extends StateNotifier<BuiltList<Pokemon>> {
+  PartyNotifier([List<Pokemon> pokemons])
+      : super(BuiltList(pokemons ?? initialPokemons));
 
-class PartyNotifier with ChangeNotifier {
-  final _pokemons = [
+  static const fixedNumber = 6;
+
+  static final initialPokemons = <Pokemon>[
     Pokemon(
       'フシギダネ',
-      PokemonTypeCombination({PokemonType.grass, PokemonType.poison}),
+      PokemonTypeCombination(BuiltSet({PokemonType.grass, PokemonType.poison})),
     ),
     Pokemon(
       'ヒトカゲ',
-      PokemonTypeCombination({PokemonType.fire}),
+      PokemonTypeCombination(BuiltSet({PokemonType.fire})),
     ),
     Pokemon(
       'ゼニガメ',
-      PokemonTypeCombination({PokemonType.water}),
+      PokemonTypeCombination(BuiltSet({PokemonType.water})),
     ),
   ];
 
-  List<Pokemon> get pokemons => List.unmodifiable(_pokemons);
+  bool get isFull => state.length >= fixedNumber;
 
   void createPokemon() {
-    assert(_pokemons.length <= 5);
+    if (isFull) {
+      throw StateError('Party is already full.');
+    }
+    
     final pokemon = Pokemon(
-      _nameNewPokemon(),
-      PokemonTypeCombination({PokemonType.normal}),
+      _buildNewPokemonName(),
+      PokemonTypeCombination(BuiltSet({PokemonType.normal})),
     );
-    _pokemons.add(pokemon);
-    notifyListeners();
+    state = state.rebuild((list) => list..add(pokemon));
   }
-
-  void renamePokemon(int index, String name) {
-    RangeError.checkValidIndex(index, _pokemons);
-    _pokemons[index] = _pokemons[index].copyWith(name: name);
-    notifyListeners();
-  }
-
-  void updatePokemonTypeCombination(
-    int index,
-    PokemonTypeCombination typeCombination,
-  ) {
-    RangeError.checkValidIndex(index, _pokemons);
-    final pokemon = _pokemons[index];
-    if (typeCombination == pokemon.typeCombination) return;
-    _pokemons[index] = pokemon.copyWith(
-      typeCombination: typeCombination,
-    );
-    notifyListeners();
+  
+  void updatePokemon(int index, Pokemon pokemon) {
+    state = state.rebuild((list) => list..[index] = pokemon);
   }
 
   void removePokemon(int index) {
-    assert(index < _pokemons.length);
-    _pokemons.removeAt(index);
-    notifyListeners();
+    state = state.rebuild((list) => list..removeAt(index));
   }
 
-  void removeAllPokemon() {
-    _pokemons.clear();
-    notifyListeners();
+  void clear() {
+    state = BuiltList<Pokemon>();
   }
 
-  String _nameNewPokemon() {
+  String _buildNewPokemonName() {
     final base = 'ポケモン';
     var suffix = 1;
     
-    while (_pokemons.any((p) =>
-        p.name == base + suffix.toString())) {
+    while (state.any((p) => p.name == base + suffix.toString())) {
       suffix++;
     }
 

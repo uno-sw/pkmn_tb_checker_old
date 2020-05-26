@@ -1,36 +1,28 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:state_notifier/state_notifier.dart';
 
-import '../models/pokemon/pokemon_type.dart';
-import '../models/pokemon/pokemon_type_combination.dart';
-
-class TypeSelectNotifier with ChangeNotifier {
+class TypeSelectNotifier extends StateNotifier<BuiltSet<PokemonType>> {
   TypeSelectNotifier({
     @required this.pokemonIndex,
     @required PokemonTypeCombination initialTypeCombination,
   }) : assert(pokemonIndex != null),
        assert(initialTypeCombination != null),
-       this._selectedTypes = initialTypeCombination.toList.toSet();
+       super(initialTypeCombination.types);
 
   final int pokemonIndex;
-  final Set<PokemonType> _selectedTypes;
 
-  List<PokemonType> get selectedTypes => List.unmodifiable(_selectedTypes);
   bool get maxCountSelected =>
-      (_selectedTypes.length >= PokemonTypeCombination.maxTypeCount);
-  bool get canSave => _selectedTypes.isNotEmpty;
+      (state.length >= PokemonTypeCombination.maxTypeCount);
+  bool get canSave => state.isNotEmpty;
 
-  bool isSelected(PokemonType type) => _selectedTypes.contains(type);
-
-  bool select(PokemonType type) {
-    if (maxCountSelected) return false;
-    final result = _selectedTypes.add(type);
-    if (result) notifyListeners();
-    return result;
+  void select(PokemonType type) {
+    if (maxCountSelected) return;
+    state = state.rebuild((t) => t..add(type));
   }
 
-  bool unselect(PokemonType type) {
-    final result = _selectedTypes.remove(type);
-    if (result) notifyListeners();
-    return result;
+  void unselect(PokemonType type) {
+    state = state.rebuild((t) => t..remove(type));
   }
 }

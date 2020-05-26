@@ -1,12 +1,14 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:pkmn_tb_checker/models/party/party_score.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:pkmn_tb_checker/notifiers/party_notifier.dart';
+import 'package:pkmn_tb_checker/notifiers/type_select_notifier.dart';
 import 'package:provider/provider.dart';
 
 import 'pokemon_rename_dialog.dart';
 import 'type_select_dialog.dart';
-import '../models/pokemon/pokemon_type.dart';
-import '../notifiers/party_notifier.dart';
-import '../notifiers/type_select_notifier.dart';
 
 class PokemonTile extends StatelessWidget {
   PokemonTile(this.index);
@@ -15,11 +17,10 @@ class PokemonTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final partyNotifier = Provider.of<PartyNotifier>(context);
-    final pokemons = partyNotifier.pokemons;
-    final pokemon = pokemons[index];
+    final party = context.watch<BuiltList<Pokemon>>();
+    final pokemon = party[index];
     final partyScore = PartyScore(
-      pokemons.map((pokemon) => pokemon.typeCombination).toList(),
+      party.map((pokemon) => pokemon.typeCombination).toBuiltList(),
     );
 
     return ListTile(
@@ -34,13 +35,13 @@ class PokemonTile extends StatelessWidget {
         onSelected: (value) {
           switch (value) {
             case PokemonTileMenu.rename:
-              _showRenameDialog(context);
+              _showRenameDialog(context, pokemon.name);
               break;
             case PokemonTileMenu.editTypeCombination:
-              _showTypeSelectDialog(context);
+              _showTypeSelectDialog(context, pokemon.typeCombination);
               break;
             case PokemonTileMenu.remove:
-              partyNotifier.removePokemon(index);
+              context.read<PartyNotifier>().removePokemon(index);
               break;
           }
         },
@@ -85,29 +86,31 @@ class PokemonTile extends StatelessWidget {
     );      
   }
 
-  void _showRenameDialog(BuildContext context) {
+  void _showRenameDialog(BuildContext context, String currentName) {
     showDialog(
       context: context,
       builder: (_) => ChangeNotifierProvider<TextEditingController>(
-        create: (_) => TextEditingController(
-          text: Provider.of<PartyNotifier>(context).pokemons[index].name,
-        ),
+        create: (_) => TextEditingController(text: currentName),
         child: PokemonRenameDialog(index),
       ),
     );
   }
 
-  void _showTypeSelectDialog(BuildContext context) {
+  void _showTypeSelectDialog(
+      BuildContext context,
+      PokemonTypeCombination currentTypeCombination,
+  ) {
     showDialog(
       context: context,
-      builder: (_) => ChangeNotifierProvider<TypeSelectNotifier>(
-        create: (_) => TypeSelectNotifier(
-          pokemonIndex: index,
-          initialTypeCombination: Provider.of<PartyNotifier>(context)
-              .pokemons[index].typeCombination,
-        ),
-        child: const TypeSelectDialog(),
-      ),
+      builder: (_) {
+        return StateNotifierProvider<TypeSelectNotifier, BuiltSet<PokemonType>>(
+          create: (_) => TypeSelectNotifier(
+            pokemonIndex: index,
+            initialTypeCombination: currentTypeCombination,
+          ),
+          child: const TypeSelectDialog(),
+        );
+      },
     );
   }
 }

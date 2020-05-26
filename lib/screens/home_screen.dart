@@ -1,24 +1,20 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:pkmn_tb_checker/models/party/party_score.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:pkmn_tb_checker/notifiers/party_notifier.dart';
+import 'package:pkmn_tb_checker/widgets/party_view.dart';
 import 'package:provider/provider.dart';
-
-import '../notifiers/party_notifier.dart';
-import '../widgets/party.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final scaffoldKey = context.watch<GlobalKey<ScaffoldState>>();
-    final partyNotifier = Provider.of<PartyNotifier>(context);
-    final partyScore = PartyScore(
-      partyNotifier.pokemons.map(
-          (pokemon) => pokemon.typeCombination).toList(),
-    );
+    final partyScore =
+        PartyScore.fromPokemons(context.watch<BuiltList<Pokemon>>());
 
     return Scaffold(
-      key: scaffoldKey,
       appBar: AppBar(
         title: const Text('Pokemon Type Balance Checker'),
       ),
@@ -30,7 +26,7 @@ class HomeScreen extends StatelessWidget {
           ),
           _IncreasesListTile(partyScore: partyScore),
           const Divider(),
-          Party(partyNotifier),
+          const PartyView(),
         ],
       ),
     );

@@ -1,43 +1,69 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
 import 'package:pkmn_tb_checker/models/pokemon/pokemon_type.dart';
-import 'package:pkmn_tb_checker/models/pokemon/pokemon_type_combination.dart';
 import 'package:pkmn_tb_checker/notifiers/party_notifier.dart';
 
 void main() {
+  PartyNotifier notifier;
+
+  setUp(() {
+    notifier = PartyNotifier();
+  });
+
   test('Clearing all pokemons', () {
-    final notifier = PartyNotifier();
-    expect(notifier.pokemons.length, 3);
-    notifier.removeAllPokemon();
-    expect(notifier.pokemons.length, 0);
+    expect(notifier.debugState.length, 3);
+    notifier.clear();
+    expect(notifier.debugState.length, 0);
   });
 
   test('Creating and removing pokemons', () {
-    final notifier = PartyNotifier()..createPokemon();
-    expect(notifier.pokemons.last.name, 'ポケモン1');
-    expect(notifier.pokemons.last.typeCombination.toList, [PokemonType.normal]);
     notifier.createPokemon();
-    expect(notifier.pokemons.last.name, 'ポケモン2');
+    expect(
+      notifier.debugState,
+      BuiltList<Pokemon>([
+        ...PartyNotifier.initialPokemons,
+        Pokemon(
+          'ポケモン1',
+          PokemonTypeCombination(BuiltSet({PokemonType.normal})),
+        ),
+      ]),
+    );
+
+    notifier.createPokemon();
     notifier.removePokemon(3);
-    expect(notifier.pokemons.length, 4);
-    notifier.createPokemon();
-    expect(notifier.pokemons.last.name, 'ポケモン1');
+    expect(
+      notifier.debugState,
+      BuiltList<Pokemon>([
+        ...PartyNotifier.initialPokemons,
+        Pokemon(
+          'ポケモン2',
+          PokemonTypeCombination(BuiltSet({PokemonType.normal})),
+        ),
+      ]),
+    );
   });
 
   test('Renaming pokemon', () {
-    final notifier = PartyNotifier();
-    notifier.renamePokemon(0, 'ナゾノクサ');
-    expect(notifier.pokemons.first.name, 'ナゾノクサ');
+    notifier.updatePokemon(
+      0,
+      notifier.debugState[0].copyWith(name: 'ナゾノクサ'),
+    );
+    expect(notifier.debugState.first.name, 'ナゾノクサ');
   });
 
   test('Updating types of pokemon', () {
-    final notifier = PartyNotifier();
-    notifier.updatePokemonTypeCombination(
+    notifier.updatePokemon(
       2,
-      PokemonTypeCombination({PokemonType.steel, PokemonType.dragon}),
+      notifier.debugState[2].copyWith(
+        typeCombination: PokemonTypeCombination(
+          BuiltSet({PokemonType.steel, PokemonType.dragon}),
+        ),
+      ),
     );
     expect(
-      notifier.pokemons[2].typeCombination.toList,
-      [PokemonType.steel, PokemonType.dragon],
+      notifier.debugState[2].typeCombination,
+      PokemonTypeCombination(BuiltSet({PokemonType.steel, PokemonType.dragon})),
     );
   });
 }

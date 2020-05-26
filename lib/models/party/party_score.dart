@@ -1,17 +1,16 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pkmn_tb_checker/models/pokemon/pokemon_type.dart';
-import 'package:pkmn_tb_checker/models/pokemon/pokemon_type_combination.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
 import 'package:tuple/tuple.dart';
 
-part 'party_score.freezed.dart';
+class PartyScore {
+  const PartyScore(this.typeCombinations);
 
-@freezed
-abstract class PartyScore implements _$PartyScore {
-  PartyScore._();
-  factory PartyScore(List<PokemonTypeCombination> typeCombinations)
-      = _PartyScore;
+  PartyScore.fromPokemons(BuiltList<Pokemon> pokemons)
+      : this(pokemons.map((pokemon) => pokemon.typeCombination).toBuiltList());
 
-  int get total => _scoreOf(typeCombinations);
+  final BuiltList<PokemonTypeCombination> typeCombinations;
+
+  int get total => _scoreOf(typeCombinations.toList());
 
   int individualScore(int index) {
     RangeError.checkValidIndex(index, typeCombinations);
@@ -21,7 +20,7 @@ abstract class PartyScore implements _$PartyScore {
 
   int scoreIncreaseByAdding(PokemonType type) {
     final tc = List.of(typeCombinations)
-      ..add(PokemonTypeCombination({type}));
+      ..add(PokemonTypeCombination(BuiltSet({type})));
     return _scoreOf(tc) - total;
   }
 
