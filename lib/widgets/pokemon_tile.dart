@@ -103,7 +103,7 @@ class PokemonTile extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) {
-        return StateNotifierProvider<TypeSelectNotifier, BuiltSet<PokemonType>>(
+        return StateNotifierProvider<TypeSelectNotifier, TypeSelectState>(
           create: (_) => TypeSelectNotifier(
             pokemonIndex: index,
             initialTypeCombination: currentTypeCombination,

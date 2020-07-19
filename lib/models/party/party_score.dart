@@ -37,7 +37,8 @@ class PartyScore {
     return scoreMap.entries
         .map((entry) => Tuple2(entry.key, entry.value))
         .toList()
-      ..sort((a, b) => b.item1.compareTo(a.item1));
+        ..removeWhere((element) => element.item1 == 0)
+        ..sort((a, b) => b.item1.compareTo(a.item1));
   }
 
   static int _scoreOf(List<PokemonTypeCombination> typeCombinations) {
