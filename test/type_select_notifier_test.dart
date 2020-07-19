@@ -12,17 +12,17 @@ void main() {
       ),
     );
 
-    typeSelectNotifier.unselect(PokemonType.normal);
-    expect(typeSelectNotifier.debugState, BuiltSet<PokemonType>());
-    expect(typeSelectNotifier.canSave, false);
+    typeSelectNotifier.deselect(PokemonType.normal);
+    expect(typeSelectNotifier.debugState.types, BuiltSet<PokemonType>());
+    expect(typeSelectNotifier.debugState.canSave, false);
 
     typeSelectNotifier.select(PokemonType.steel);
     typeSelectNotifier.select(PokemonType.fairy);
     typeSelectNotifier.select(PokemonType.normal);
     expect(
-      typeSelectNotifier.debugState,
+      typeSelectNotifier.debugState.types,
       BuiltSet<PokemonType>({PokemonType.steel, PokemonType.fairy}),
     );
-    expect(typeSelectNotifier.canSave, true);
+    expect(typeSelectNotifier.debugState.canSave, true);
   });
 }

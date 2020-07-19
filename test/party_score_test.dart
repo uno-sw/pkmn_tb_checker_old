@@ -53,13 +53,12 @@ void main() {
     ]));
     final additionalTypeScores = partyScore.additionalTypeScores();
 
-    expect(additionalTypeScores.length, 7);
+    expect(additionalTypeScores.length, 6);
     expect(additionalTypeScores[0], Tuple2(17, 'はがね'));
     expect(additionalTypeScores[1], Tuple2(14, 'あく'));
     expect(additionalTypeScores[2], Tuple2(11, 'じめん, むし, いわ, ゴースト, フェアリー'));
     expect(additionalTypeScores[3], Tuple2(8, 'かくとう, エスパー'));
     expect(additionalTypeScores[4], Tuple2(6, 'ひこう, でんき, こおり'));
     expect(additionalTypeScores[5], Tuple2(3, 'ノーマル, どく, くさ, ドラゴン'));
-    expect(additionalTypeScores[6], Tuple2(0, 'ほのお, みず'));
   });
 }
