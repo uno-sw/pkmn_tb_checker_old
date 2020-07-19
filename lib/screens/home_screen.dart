@@ -1,36 +1,45 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:pkmn_tb_checker/models/party/party_score.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:pkmn_tb_checker/widgets/party_view.dart';
 import 'package:provider/provider.dart';
-
-import '../notifiers/party_notifier.dart';
-import '../widgets/party.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final scaffoldKey = context.read<GlobalKey<ScaffoldState>>();
-    final partyNotifier = Provider.of<PartyNotifier>(context);
-    final partyScore = PartyScore(
-      typeCombinations: partyNotifier.pokemons.map(
-          (pokemon) => pokemon.typeCombination).toList(),
-    );
+    final partyScore =
+        PartyScore.fromPokemons(context.watch<BuiltList<Pokemon>>());
 
     return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        title: const Text('Pokemon Type Balance Checker'),
-      ),
-      body: ListView(
-        children: [
-          ListTile(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
             title: const Text('スコア'),
-            subtitle: Text(partyScore.total.toString()),
+            expandedHeight: 120,
+            centerTitle: true,
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(120),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 32.0),
+                child: Text(
+                  '${partyScore.total}',
+                  style: Theme.of(context).textTheme.headline2.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
           ),
-          _IncreasesListTile(partyScore: partyScore),
-          const Divider(),
-          Party(partyNotifier),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              _IncreasesListTile(partyScore: partyScore),
+              const Divider(),
+              const PartyView(),
+            ]),
+          ),
         ],
       ),
     );
@@ -46,6 +55,7 @@ class _IncreasesListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      enabled: partyScore.total < 100,
       title: const Text('タイプ追加による増加量'),
       onTap: () {
         final scores = partyScore.additionalTypeScores();

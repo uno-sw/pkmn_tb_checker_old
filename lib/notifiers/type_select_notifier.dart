@@ -1,36 +1,45 @@
+import 'package:built_collection/built_collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:state_notifier/state_notifier.dart';
 
-import '../models/pokemon/pokemon_type.dart';
-import '../models/pokemon/pokemon_type_combination.dart';
+part 'type_select_notifier.freezed.dart';
 
-class TypeSelectNotifier with ChangeNotifier {
-  TypeSelectNotifier({
-    @required this.pokemonIndex,
-    @required PokemonTypeCombination initialTypeCombination,
-  }) : assert(pokemonIndex != null),
-       assert(initialTypeCombination != null),
-       this._selectedTypes = initialTypeCombination.toList.toSet();
+@freezed
+abstract class TypeSelectState implements _$TypeSelectState {
+  TypeSelectState._();
+  factory TypeSelectState({
+    @required int pokemonIndex,
+    @required BuiltSet<PokemonType> types,
+  }) = _TypeSelectState;
 
-  final int pokemonIndex;
-  final Set<PokemonType> _selectedTypes;
-
-  List<PokemonType> get selectedTypes => List.unmodifiable(_selectedTypes);
+  @late
   bool get maxCountSelected =>
-      (_selectedTypes.length >= PokemonTypeCombination.maxTypeCount);
-  bool get canSave => _selectedTypes.isNotEmpty;
+      (types.length >= PokemonTypeCombination.maxTypeCount);
 
-  bool isSelected(PokemonType type) => _selectedTypes.contains(type);
+  @late
+  bool get canSave => types.isNotEmpty;
+}
 
-  bool select(PokemonType type) {
-    if (maxCountSelected) return false;
-    final result = _selectedTypes.add(type);
-    if (result) notifyListeners();
-    return result;
+class TypeSelectNotifier extends StateNotifier<TypeSelectState> {
+  TypeSelectNotifier({
+    @required int pokemonIndex,
+    @required PokemonTypeCombination initialTypeCombination,
+  })  : super(
+          TypeSelectState(
+            pokemonIndex: pokemonIndex,
+            types: initialTypeCombination.types,
+          ),
+        );
+
+  void select(PokemonType type) {
+    if (state.maxCountSelected) return;
+    state = state.copyWith(types: state.types.rebuild((t) => t..add(type)));
   }
 
-  bool unselect(PokemonType type) {
-    final result = _selectedTypes.remove(type);
-    if (result) notifyListeners();
-    return result;
+  void deselect(PokemonType type) {
+    state = state.copyWith(types: state.types.rebuild((t) => t..remove(type)));
   }
 }

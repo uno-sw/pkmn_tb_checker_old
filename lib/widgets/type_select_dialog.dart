@@ -1,10 +1,9 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
 import 'package:pkmn_tb_checker/notifiers/party_notifier.dart';
+import 'package:pkmn_tb_checker/notifiers/type_select_notifier.dart';
 import 'package:provider/provider.dart';
-
-import '../models/pokemon/pokemon_type.dart';
-import '../models/pokemon/pokemon_type_combination.dart';
-import '../notifiers/type_select_notifier.dart';
 
 class TypeSelectDialog extends StatelessWidget {
   const TypeSelectDialog({Key key}) : super(key: key);
@@ -40,7 +39,7 @@ class TypeSelectDialog extends StatelessWidget {
           child: const Text('キャンセル'),
         ),
         FlatButton(
-          onPressed: context.select((TypeSelectNotifier notifier) => notifier.canSave)
+          onPressed: context.watch<TypeSelectState>().types.isNotEmpty
               ? () => _onSaveButtonPressed(context)
               : null,
           child: const Text('OK'),
@@ -50,11 +49,18 @@ class TypeSelectDialog extends StatelessWidget {
   }
 
   void _onSaveButtonPressed(BuildContext context) {
-    final typeSelectNotifier = context.read<TypeSelectNotifier>();
-    context.read<PartyNotifier>().updatePokemonTypeCombination(
-      typeSelectNotifier.pokemonIndex,
-      PokemonTypeCombination(typeSelectNotifier.selectedTypes.toSet()),
+    final party = context.read<BuiltList<Pokemon>>();
+    final pokemon = party[context.read<TypeSelectState>().pokemonIndex];
+
+    context.read<PartyNotifier>().updatePokemon(
+      context.read<TypeSelectState>().pokemonIndex,
+      pokemon.copyWith(
+        typeCombination: PokemonTypeCombination(
+          context.read<TypeSelectState>().types,
+        ),
+      ),
     );
+
     Navigator.pop(context);
   }
 }
@@ -68,8 +74,8 @@ class _PokemonTypeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = Provider.of<TypeSelectNotifier>(context);
-    final isSelected = notifier.isSelected(type);
+    final typeSelectState = context.watch<TypeSelectState>();
+    final isSelected = typeSelectState.types.contains(type);
 
     return FilterChip(
       avatar: CircleAvatar(backgroundColor: type.data.color),
@@ -79,10 +85,10 @@ class _PokemonTypeChip extends StatelessWidget {
       disabledColor: Colors.white,
       selectedColor: Colors.black12,
       selected: isSelected,
-      onSelected: (!notifier.maxCountSelected || isSelected)
+      onSelected: (!typeSelectState.maxCountSelected || isSelected)
           ? (value) {
-              if (value) notifier.select(type);
-              else notifier.unselect(type);
+              if (value) context.read<TypeSelectNotifier>().select(type);
+              else context.read<TypeSelectNotifier>().deselect(type);
             }
           : null,
     );

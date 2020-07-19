@@ -1,27 +1,27 @@
-import 'package:meta/meta.dart';
-import 'package:pkmn_tb_checker/models/pokemon/pokemon_type.dart';
-import 'package:pkmn_tb_checker/models/pokemon/pokemon_type_combination.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
 import 'package:tuple/tuple.dart';
 
 class PartyScore {
-  PartyScore({@required List<PokemonTypeCombination> typeCombinations})
-      : assert(typeCombinations != null),
-        _typeCombinations = typeCombinations,
-        total = _scoreOf(typeCombinations);
+  const PartyScore(this.typeCombinations);
 
-  final List<PokemonTypeCombination> _typeCombinations;
-  final int total;
+  PartyScore.fromPokemons(BuiltList<Pokemon> pokemons)
+      : this(pokemons.map((pokemon) => pokemon.typeCombination).toBuiltList());
+
+  final BuiltList<PokemonTypeCombination> typeCombinations;
+
+  int get total => _scoreOf(typeCombinations.toList());
 
   int individualScore(int index) {
-    RangeError.checkValidIndex(index, _typeCombinations);
-    final others = List.of(_typeCombinations)..removeAt(index);
+    RangeError.checkValidIndex(index, typeCombinations);
+    final others = List.of(typeCombinations)..removeAt(index);
     return total - _scoreOf(others);
   }
 
   int scoreIncreaseByAdding(PokemonType type) {
-    final typeCombinations = List.of(_typeCombinations)
-      ..add(PokemonTypeCombination({type}));
-    return _scoreOf(typeCombinations) - total;
+    final tc = List.of(typeCombinations)
+      ..add(PokemonTypeCombination(BuiltSet({type})));
+    return _scoreOf(tc) - total;
   }
 
   List<Tuple2<int, String>> additionalTypeScores() {
@@ -37,7 +37,8 @@ class PartyScore {
     return scoreMap.entries
         .map((entry) => Tuple2(entry.key, entry.value))
         .toList()
-      ..sort((a, b) => b.item1.compareTo(a.item1));
+        ..removeWhere((element) => element.item1 == 0)
+        ..sort((a, b) => b.item1.compareTo(a.item1));
   }
 
   static int _scoreOf(List<PokemonTypeCombination> typeCombinations) {

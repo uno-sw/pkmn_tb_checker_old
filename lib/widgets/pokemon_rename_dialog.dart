@@ -1,7 +1,8 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:pkmn_tb_checker/notifiers/party_notifier.dart';
 import 'package:provider/provider.dart';
-
-import '../notifiers/party_notifier.dart';
 
 class PokemonRenameDialog extends StatelessWidget {
   const PokemonRenameDialog(this.index);
@@ -10,10 +11,9 @@ class PokemonRenameDialog extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    final navigator = Navigator.of(context);
-    final partyNotifier = Provider.of<PartyNotifier>(context);
-    final controller = Provider.of<TextEditingController>(context);
-    final initialName = partyNotifier.pokemons[index].name;
+    final party = context.watch<BuiltList<Pokemon>>();
+    final pokemon = party[index];
+    final controller = context.watch<TextEditingController>();
     final text = controller.text.trim();
 
     return AlertDialog(
@@ -25,16 +25,19 @@ class PokemonRenameDialog extends StatelessWidget {
       actions: [
         FlatButton(
           textTheme: ButtonTextTheme.normal,
-          onPressed: () => navigator.pop(),
+          onPressed: () => Navigator.pop(context),
           child: const Text('キャンセル'),
         ),
         FlatButton(
-          onPressed: text.isNotEmpty && text != initialName 
-              ? () {
-                  partyNotifier.renamePokemon(index, text);
-                  navigator.pop();
-                }
-              : null,
+          onPressed: text.isEmpty || text == pokemon.name
+              ? null
+              : () {
+                  context.read<PartyNotifier>().updatePokemon(
+                    index,
+                    pokemon.copyWith(name: text),
+                  );
+                  Navigator.pop(context);
+                },
           child: const Text('OK'),
         ),
       ],

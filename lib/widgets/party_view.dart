@@ -1,19 +1,21 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
+import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
+import 'package:pkmn_tb_checker/notifiers/party_notifier.dart';
+import 'package:provider/provider.dart';
 
 import 'pokemon_tile.dart';
-import '../notifiers/party_notifier.dart';
 
-class Party extends StatelessWidget {
-  const Party(this.notifier, {Key key})
-      : assert(notifier != null), super(key: key);
-
-  final PartyNotifier notifier;
+class PartyView extends StatelessWidget {
+  const PartyView({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final pokemonCount = context.watch<BuiltList<Pokemon>>().length;
+    
     return Column(
       children: [
-        for (var i = 0; i < notifier.pokemons.length; i++) PokemonTile(i),
+        for (var i = 0; i < pokemonCount; i++) PokemonTile(i),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
           child: Row(
@@ -22,15 +24,15 @@ class Party extends StatelessWidget {
               FlatButton.icon(
                 icon: const Icon(Icons.clear),
                 label: const Text('すべてクリア'),
-                onPressed: notifier.removeAllPokemon,
+                onPressed: () => context.read<PartyNotifier>().clear(),
               ),
               FlatButton.icon(
                 icon: const Icon(Icons.add),
                 label: const Text('追加'),
                 textTheme: ButtonTextTheme.primary,
-                onPressed: notifier.pokemons.length <= 5
-                    ? () => notifier.createPokemon()
-                    : null,
+                onPressed: context.select((PartyNotifier pn) => pn.isFull)
+                    ? null
+                    : () => context.read<PartyNotifier>().createPokemon(),
               ),
             ],
           ),

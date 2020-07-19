@@ -1,7 +1,9 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 
+import 'models/pokemon/pokemon.dart';
 import 'notifiers/party_notifier.dart';
 import 'screens/home_screen.dart';
 
@@ -10,7 +12,7 @@ class App extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<PartyNotifier>(
+    return StateNotifierProvider<PartyNotifier, BuiltList<Pokemon>>(
       create: (_) => PartyNotifier(),
       child: MaterialApp(
         localizationsDelegates: const [
@@ -21,14 +23,9 @@ class App extends StatelessWidget {
           Locale('en'),
           Locale('ja'),
         ],
-        theme: ThemeData(
-          primarySwatch: Colors.teal,
-        ),
+        theme: ThemeData(primarySwatch: Colors.teal),
         title: 'Pokemon Type Balance Checker',
-        home: Provider(
-          create: (_) => GlobalKey<ScaffoldState>(),
-          child: const HomeScreen(),
-        ),
+        home: const HomeScreen(),
       ),
     );
   }
