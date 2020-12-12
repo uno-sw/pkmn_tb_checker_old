@@ -25,14 +25,16 @@ class PartyNotifier extends StateNotifier<BuiltList<Pokemon>> {
 
   bool get isFull => state.length >= fixedNumber;
 
-  void createPokemon() {
+  void createPokemon([PokemonTypeCombination typeCombination]) {
     if (isFull) {
       throw StateError('Party is already full.');
     }
     
     final pokemon = Pokemon(
       _buildNewPokemonName(),
-      PokemonTypeCombination(BuiltSet({PokemonType.normal})),
+      typeCombination == null
+          ? PokemonTypeCombination(BuiltSet({PokemonType.normal}))
+          : typeCombination,
     );
     state = state.rebuild((list) => list..add(pokemon));
   }

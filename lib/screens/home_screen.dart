@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pkmn_tb_checker/models/party/party_score.dart';
 import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
 import 'package:pkmn_tb_checker/widgets/party_view.dart';
+import 'package:pkmn_tb_checker/widgets/recommended_types_tile.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -35,67 +36,13 @@ class HomeScreen extends StatelessWidget {
           ),
           SliverList(
             delegate: SliverChildListDelegate([
-              _IncreasesListTile(partyScore: partyScore),
-              const Divider(),
+              if (partyScore.additionalTypeScores().isNotEmpty)
+                  RecommendedTypesTile(partyScore: partyScore),
               const PartyView(),
             ]),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _IncreasesListTile extends StatelessWidget {
-  const _IncreasesListTile({Key key, @required this.partyScore})
-      : assert(partyScore != null), super(key: key);
-
-  final PartyScore partyScore;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      enabled: partyScore.total < 100,
-      title: const Text('タイプ追加による増加量'),
-      onTap: () {
-        final scores = partyScore.additionalTypeScores();
-
-        showModalBottomSheet(
-          context: context,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
-          ),
-          isScrollControlled: true,
-          builder: (context) => FractionallySizedBox(
-            heightFactor: 0.5,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'タイプ追加による増加量',
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-                ),
-                const Divider(height: 1.0),
-                Flexible(
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    itemCount: scores.length,
-                    itemBuilder: (context, i) {
-                      return ListTile(
-                        title: Text(scores[i].item2),
-                        leading: CircleAvatar(child: Text('${scores[i].item1}')),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

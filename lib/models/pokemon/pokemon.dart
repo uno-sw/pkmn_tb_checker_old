@@ -16,7 +16,7 @@ abstract class Pokemon with _$Pokemon {
 abstract class PokemonTypeCombination implements _$PokemonTypeCombination {
   PokemonTypeCombination._();
   factory PokemonTypeCombination(BuiltSet<PokemonType> types)
-  = _PokemonTypeCombination;
+      = _PokemonTypeCombination;
 
   static const maxTypeCount = 2;
   static const weaknessDamageFactor = 2.0;
