@@ -1,6 +1,9 @@
 import 'package:built_collection/built_collection.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:meta/meta.dart';
 import 'package:pkmn_tb_checker/models/pokemon/pokemon.dart';
-import 'package:tuple/tuple.dart';
+
+part 'party_score.freezed.dart';
 
 class PartyScore {
   const PartyScore(this.typeCombinations);
@@ -24,21 +27,22 @@ class PartyScore {
     return _scoreOf(tc) - total;
   }
 
-  List<Tuple2<int, String>> additionalTypeScores() {
-    final scoreMap = <int, String>{};
+  List<ScoredPokemonTypeList> additionalTypeScores() {
+    final scoreMap = <int, List<PokemonType>>{};
     for (var type in PokemonType.values) {
       final score = scoreIncreaseByAdding(type);
       if (scoreMap[score] == null) {
-        scoreMap[score] = type.name;
+        scoreMap[score] = [type];
       } else {
-        scoreMap[score] += ', ${type.name}';
+        scoreMap[score].add(type);
       }
     }
     return scoreMap.entries
-        .map((entry) => Tuple2(entry.key, entry.value))
+        .map((entry) =>
+            ScoredPokemonTypeList(score: entry.key, types: entry.value))
         .toList()
-        ..removeWhere((element) => element.item1 == 0)
-        ..sort((a, b) => b.item1.compareTo(a.item1));
+        ..removeWhere((element) => element.score == 0)
+        ..sort((a, b) => b.score.compareTo(a.score));
   }
 
   static int _scoreOf(List<PokemonTypeCombination> typeCombinations) {
@@ -60,4 +64,12 @@ class PartyScore {
 
     return score.round();
   }
+}
+
+@freezed
+abstract class ScoredPokemonTypeList with _$ScoredPokemonTypeList {
+  const factory ScoredPokemonTypeList({
+    @required int score,
+    @Default([]) Iterable<PokemonType> types,
+  }) = _ScoredPokemonTypeList;
 }
